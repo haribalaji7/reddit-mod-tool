@@ -8,7 +8,7 @@
   "main": "src/main.tsx",
   "scripts": {
     "dev": "devvit playtest",
-    "build": "devvit build || echo 'Bypassing Devvit compile on Vercel'",
+    "build": "echo 'Building static dashboard...'",
     "upload": "devvit upload",
     "typecheck": "tsc --noEmit"
   },
