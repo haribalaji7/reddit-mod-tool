@@ -1631,11 +1631,16 @@ select.input-field {
     <section class="tab-pane" id="pane-analytics">
       <div class="analytics-header">
         <div class="section-title">MODERATION ANALYTICS</div>
-        <div class="period-selector" id="periodSelector">
-          <button class="period-btn active" data-period="day">24H</button>
-          <button class="period-btn" data-period="week">7D</button>
-          <button class="period-btn" data-period="month">30D</button>
-          <button class="period-btn" data-period="all">ALL</button>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="btn btn-approve btn-sm" onclick="sendWeeklyReport()" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; box-shadow:0 0 10px rgba(48,209,88,0.2)">
+            📊 Export Weekly Digest
+          </button>
+          <div class="period-selector" id="periodSelector">
+            <button class="period-btn active" data-period="day">24H</button>
+            <button class="period-btn" data-period="week">7D</button>
+            <button class="period-btn" data-period="month">30D</button>
+            <button class="period-btn" data-period="all">ALL</button>
+          </div>
         </div>
       </div>
 
@@ -2184,6 +2189,11 @@ function bulkAction(action) {
   state.queue = state.queue.filter(i => !state.selectedItems.has(i.id));
   showToast(`${ids.length} items ${action}`, 'success');
   clearSelection();
+}
+
+function sendWeeklyReport() {
+  sendToHost({ type: 'GENERATE_WEEKLY_REPORT' });
+  showToast('Compiling and sending Weekly Performance Digest...', 'info');
 }
 
 // ---- ANALYTICS RENDERING ----

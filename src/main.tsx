@@ -27,7 +27,7 @@ import type {
 // Services
 import { classifyWithContext, scoreToTier } from './services/classifier.js';
 import { evaluateRules, executeKVAction } from './services/ruleEngine.js';
-import { runScheduledIntelligence, formatSpikeAlert } from './services/scheduler.js';
+import { runScheduledIntelligence, formatSpikeAlert, compileWeeklyReport } from './services/scheduler.js';
 import { computeAnalytics } from './services/analytics.js';
 import { generateDraft } from './services/modmail.js';
 
@@ -996,6 +996,41 @@ Devvit.addCustomPostType({
                 webView.postMessage({
                   type: 'TOAST',
                   data: { message: 'Failed to send reply via Reddit API', level: 'error' },
+                });
+              }
+              break;
+            }
+
+            case 'GENERATE_WEEKLY_REPORT': {
+              try {
+                const analytics = await computeAnalytics(context.redis, context.kvStore, subreddit, 'week');
+                const watchlist = await getWatchlist(context.kvStore, subreddit);
+                const reportContent = compileWeeklyReport(subreddit, analytics, watchlist);
+
+                await context.reddit.modMail.createConversation({
+                  subredditName: subreddit,
+                  subject: `📊 SENTINEL WEEKLY REPORT — r/${subreddit}`,
+                  body: reportContent,
+                });
+
+                await addAuditEntry(context.kvStore, subreddit, {
+                  id: `audit_weekly_report_${Date.now()}`,
+                  timestamp: Date.now(),
+                  actionType: 'manual_approve',
+                  targetId: 'weekly_report',
+                  actor: currentUser,
+                  details: 'Generated and dispatched Weekly Performance Digest to Modmail',
+                });
+
+                webView.postMessage({
+                  type: 'TOAST',
+                  data: { message: 'Weekly Moderation Report dispatched to Modmail!', level: 'success' },
+                });
+              } catch (err) {
+                console.error('Sentinel: Failed to dispatch weekly moderation report:', err);
+                webView.postMessage({
+                  type: 'TOAST',
+                  data: { message: 'Failed to send weekly report via Modmail', level: 'error' },
                 });
               }
               break;

@@ -301,7 +301,8 @@ export type WebviewToDevvitMessage =
   | { type: 'EXPORT_AUDIT_LOG' }
   | { type: 'CHANGE_PERIOD'; data: { period: AnalyticsPeriod } }
   | { type: 'GENERATE_MODMAIL_DRAFT'; data: { senderName: string; subject: string; body: string } }
-  | { type: 'SEND_MODMAIL_REPLY'; data: { conversationId: string; body: string } };
+  | { type: 'SEND_MODMAIL_REPLY'; data: { conversationId: string; body: string } }
+  | { type: 'GENERATE_WEEKLY_REPORT' };
 
 /** Dashboard tab identifiers. */
 export type DashboardTab = 'queue' | 'analytics' | 'rules' | 'watchlist' | 'audit' | 'modmail';
